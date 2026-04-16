@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>探究MBTI — 自分の関心分野を発見しよう</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff9f0;
+  --surface:#ffffff;
+  --accent1:#ff6b6b;
+  --accent2:#ffd93d;
+  --accent3:#6bcb77;
+  --accent4:#4d96ff;
+  --accent5:#c77dff;
+  --text:#1a1a2e;
+  --muted:#7a7a9a;
+  --border:#ede8ff;
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'M PLUS Rounded 1c','Hiragino Kaku Gothic ProN','Hiragino Sans','Meiryo',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  background-image:radial-gradient(circle at 20% 10%,#ffe0e0 0%,transparent 40%),
+                   radial-gradient(circle at 80% 80%,#e0e8ff 0%,transparent 40%),
+                   radial-gradient(circle at 60% 30%,#fffbe0 0%,transparent 30%);
+}
+.outer{max-width:640px;margin:0 auto;padding:28px 16px 80px}
+.screen{display:none}
+.screen.active{display:block;animation:fadeUp 0.4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:0 4px 24px rgba(100,80,200,0.07)}
+
+/* ===== INTRO ===== */
+.intro-hero{text-align:center;padding:32px 0 24px}
+.intro-emoji{font-size:56px;margin-bottom:12px;display:block;animation:bounce 2s ease infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+h1{font-family:'Zen Maru Gothic',sans-serif;font-size:32px;font-weight:900;margin-bottom:8px;
+   background:linear-gradient(135deg,var(--accent1),var(--accent5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sub{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:22px}
+.tag-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:22px;justify-content:center}
+.tag{font-size:12px;padding:5px 14px;border-radius:20px;border:2px solid;font-weight:700}
+.tip-box{background:linear-gradient(135deg,#fff8e1,#fff0f5);border:2px dashed #ffd93d;border-radius:14px;padding:13px 16px;font-size:13px;color:#5a4a00;line-height:1.7;margin-bottom:20px}
+.btn{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;font-weight:700;padding:13px 28px;border-radius:50px;border:2px solid #ddd;background:var(--surface);color:var(--text);transition:all 0.18s;font-family:inherit}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.12)}
+.btn.primary{background:linear-gradient(135deg,var(--accent4),var(--accent5));color:#fff;border-color:transparent;box-shadow:0 4px 16px rgba(77,150,255,0.35)}
+.btn.primary:hover{box-shadow:0 8px 24px rgba(77,150,255,0.45);transform:translateY(-3px)}
+.btn:disabled{opacity:0.4;cursor:default;transform:none!important;box-shadow:none!important}
+.demo-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+
+/* ===== QUIZ ===== */
+.q-meta{font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:700;letter-spacing:0.05em}
+.prog-wrap{background:#ede8ff;border-radius:6px;height:10px;margin-bottom:20px;overflow:hidden}
+.prog-bar{background:linear-gradient(90deg,var(--accent4),var(--accent5));height:10px;border-radius:6px;transition:width 0.4s cubic-bezier(.4,0,.2,1)}
+.scale-row{display:flex;align-items:center;gap:12px;cursor:pointer;padding:11px 14px;border-radius:13px;border:2px solid #ede8ff;background:var(--surface);transition:all 0.15s;margin-bottom:5px}
+.scale-row:hover{background:#f5f0ff;border-color:#c4b5fd;transform:translateX(3px)}
+.scale-row.selected{background:linear-gradient(135deg,#eff6ff,#f5f0ff);border-color:var(--accent4);transform:translateX(3px)}
+.radio{width:22px;height:22px;border-radius:50%;border:2.5px solid #ccc;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.scale-row.selected .radio{border-color:var(--accent4);background:var(--accent4)}
+.radio-inner{width:9px;height:9px;border-radius:50%;background:#fff}
+.scale-label{font-size:13px;color:#333;font-weight:500}
+.nav-row{display:flex;gap:10px;margin-top:22px;justify-content:flex-end}
+
+/* ===== RESULT ===== */
+.result-hero{background:linear-gradient(135deg,#667eea,#f093fb);border-radius:var(--radius);padding:28px 20px;text-align:center;margin-bottom:24px;position:relative;overflow:hidden}
+.result-hero::before{content:'🎉';position:absolute;font-size:120px;opacity:0.07;top:-20px;right:-20px;transform:rotate(15deg)}
+.r-title{font-family:'Zen Maru Gothic',sans-serif;font-size:24px;font-weight:900;color:#fff;margin-bottom:4px}
+.r-sub{font-size:13px;color:rgba(255,255,255,0.8)}
+
+.section-label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--muted);margin-bottom:12px;margin-top:28px;letter-spacing:0.06em;text-transform:uppercase}
+.section-label::before{content:'';width:4px;height:16px;border-radius:3px;background:linear-gradient(to bottom,var(--accent4),var(--accent5))}
+
+/* TOP4 GRID */
+.top3-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.rank-card{border-radius:20px;padding:20px 14px;text-align:center;border:2px solid transparent;position:relative;overflow:hidden;transition:transform 0.2s}
+.rank-card:hover{transform:translateY(-3px)}
+.rank-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.2),transparent);pointer-events:none}
+.rank-card:nth-child(1){grid-column:span 2;padding:24px 20px}
+.rank-card:nth-child(1) .rank-score{font-size:42px}
+.rank-card:nth-child(1) .rank-name{font-size:16px}
+.rank-badge{font-size:11px;font-weight:800;margin-bottom:8px;display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,0.35)}
+.rank-name{font-size:11px;font-weight:700;margin-bottom:10px;line-height:1.4}
+.rank-score{font-size:32px;font-weight:900;font-family:'Zen Maru Gothic',sans-serif}
+.rank-pt{font-size:12px;font-weight:500;opacity:0.7}
+.rank-medal{font-size:22px;display:block;margin-bottom:4px}
+.rank-card:nth-child(1) .rank-medal{font-size:30px}
+
+/* KEYWORDS */
+.kw-grid{display:flex;flex-wrap:wrap;gap:8px}
+.kw-pill{font-size:13px;padding:7px 15px;border-radius:50px;border:2px solid;font-weight:700;transition:transform 0.15s}
+.kw-pill:hover{transform:scale(1.06)}
+
+/* BARS */
+.bars-wrap{background:var(--surface);border-radius:var(--radius);padding:16px 18px;border:2px solid var(--border)}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-label{font-size:11px;color:var(--muted);width:110px;flex-shrink:0;text-align:right;font-weight:600}
+.bar-bg{flex:1;height:10px;background:#f0edff;border-radius:6px;overflow:hidden}
+.bar-fill{height:10px;border-radius:6px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.bar-val{font-size:11px;color:var(--muted);width:28px;text-align:right;flex-shrink:0;font-weight:700}
+
+/* THEME CARDS */
+.theme-list{display:flex;flex-direction:column;gap:12px}
+.theme-card{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:16px 18px;transition:all 0.18s;position:relative;overflow:hidden}
+.theme-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(to bottom,var(--accent4),var(--accent5));border-radius:4px 0 0 4px}
+.theme-card:hover{border-color:#c4b5fd;transform:translateX(4px);box-shadow:0 4px 16px rgba(100,80,200,0.1)}
+.theme-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent4),var(--accent5));color:#fff;font-size:11px;font-weight:800;margin-bottom:8px}
+.theme-q{font-size:14px;font-weight:700;color:var(--text);line-height:1.65;margin-bottom:6px}
+.theme-reason{font-size:12px;color:var(--muted);line-height:1.6}
+
+.note{font-size:12px;color:var(--muted);margin-top:20px;line-height:1.7}
+.restart-row{margin-top:28px;display:flex;gap:10px;flex-wrap:wrap}
+
+/* ===== TOP BUTTON ===== */
+.top-btn{position:fixed;bottom:24px;right:16px;z-index:100;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--accent4),var(--accent5));color:#fff;font-size:20px;cursor:pointer;box-shadow:0 4px 16px rgba(77,150,255,0.4);display:none;align-items:center;justify-content:center;transition:all 0.2s;font-family:inherit}
+.top-btn:hover{transform:translateY(-3px) scale(1.08);box-shadow:0 8px 24px rgba(77,150,255,0.5)}
+.top-btn.visible{display:flex}
+
+/* ===== RADAR CHART ===== */
+.radar-wrap{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:20px 16px;display:flex;flex-direction:column;align-items:center}
+.radar-wrap canvas{max-width:100%;height:auto}
+.radar-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;justify-content:center}
+.radar-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-weight:600}
+.radar-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* ===== FIELD FILTER ===== */
+.rank-card{cursor:pointer}
+.rank-card.active-filter{box-shadow:0 0 0 3px var(--accent4);transform:translateY(-3px)!important}
+.kw-pill.hidden{display:none}
+.filter-hint{font-size:12px;color:var(--muted);margin-bottom:8px;font-style:italic}
+
+/* ===== SHARE BUTTONS ===== */
+.share-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.share-btn{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:700;padding:10px 20px;border-radius:50px;border:2px solid;background:var(--surface);transition:all 0.18s;font-family:inherit}
+.share-btn:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,0.12)}
+
+/* ===== KEYWORD SELECTION ===== */
+.kw-pill{cursor:pointer;user-select:none}
+.kw-pill.kw-selected{box-shadow:0 0 0 3px var(--accent4);transform:scale(1.1)!important;position:relative}
+.kw-pill.kw-selected::after{content:'✓';position:absolute;top:-6px;right:-4px;font-size:9px;background:var(--accent4);color:#fff;border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-weight:900}
+.kw-select-hint{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
+.selected-kw-bar{background:linear-gradient(135deg,#eff6ff,#f5f0ff);border:2px solid var(--accent4);border-radius:12px;padding:10px 14px;margin-top:10px;font-size:12px;color:#1e3a8a;font-weight:600;display:none}
+
+/* ===== FAVORITE THEMES ===== */
+.theme-fav{position:absolute;top:10px;right:12px;background:none;border:none;font-size:18px;cursor:pointer;opacity:0.4;transition:all 0.2s;padding:4px}
+.theme-fav:hover{opacity:0.8;transform:scale(1.2)}
+.theme-fav.active{opacity:1;transform:scale(1.15)}
+.fav-copy-row{margin-top:12px;display:none}
+
+/* ===== TEACHER VIEW ===== */
+.teacher-toggle{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:11px;color:var(--muted);cursor:pointer;font-family:inherit;font-weight:600;margin-top:8px}
+.teacher-panel{display:none;margin-top:12px;background:#1a1a2e;border-radius:16px;padding:20px;color:#e0e0ff}
+.teacher-panel.open{display:block}
+.teacher-field-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.teacher-label{font-size:11px;color:#aaa;width:130px;flex-shrink:0;text-align:right}
+.teacher-bar-bg{flex:1;height:8px;background:#333;border-radius:4px;overflow:hidden}
+.teacher-bar-fill{height:8px;border-radius:4px;transition:width 1s ease}
+.teacher-val{font-size:11px;color:#aaa;width:28px;text-align:right;flex-shrink:0}
+.teacher-note{font-size:11px;color:#666;margin-top:12px;line-height:1.6}
+
+/* ===== API KEY PANEL ===== */
+.apikey-panel{background:linear-gradient(135deg,#fffbeb,#fff0f5);border:2px dashed #ffd93d;border-radius:14px;padding:16px;margin-bottom:14px}
+.apikey-panel input{width:100%;padding:10px 14px;border-radius:10px;border:2px solid #e0ddd6;font-size:13px;font-family:monospace;margin-top:8px;outline:none}
+.apikey-panel input:focus{border-color:var(--accent4)}
+.apikey-note{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.6}
+.resume-banner{background:linear-gradient(135deg,#eff6ff,#f5f0ff);border:2px solid var(--accent4);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:none}
+.resume-banner-title{font-size:14px;font-weight:700;color:#1e3a8a;margin-bottom:6px}
+.resume-banner-row{display:flex;gap:8px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="outer">
+
+<!-- イントロ画面 -->
+<div class="screen active" id="s-intro">
+  <div class="resume-banner" id="resume-banner">
+    <div class="resume-banner-title">📝 前回の途中回答が残っています</div>
+    <div class="resume-banner-row">
+      <button class="btn primary" style="font-size:13px;padding:9px 20px" onclick="resumeQuiz()">▶ 続きから再開</button>
+      <button class="btn" style="font-size:13px;padding:9px 20px;color:var(--muted)" onclick="clearSaved()">🗑 破棄して最初から</button>
+    </div>
+  </div>
+  <div class="intro-hero">
+    <span class="intro-emoji">🔍</span>
+    <h1>探究MBTI</h1>
+    <p class="sub">90問の質問に答えて、あなたが本当に<br>関心を持っているテーマを発見しよう！<br>答えに正解はありません。直感で選んでね✨</p>
+  </div>
+  <div class="tip-box">⏱️ 所要時間：約10〜15分 ／ 全90問 ／ 途中保存はできません</div>
+  <div class="tag-row">
+    <span class="tag" style="background:#eff6ff;color:#1e40af;border-color:#bfdbfe">📚 人文・社会 6系統</span>
+    <span class="tag" style="background:#f0fdf4;color:#166534;border-color:#bbf7d0">🔬 理工・自然 4系統</span>
+    <span class="tag" style="background:#fdf4ff;color:#6b21a8;border-color:#e9d5ff">🌍 現代・国際 3系統</span>
+    <span class="tag" style="background:#f5f3ff;color:#4c1d95;border-color:#ddd6fe">🏘️ 地域・生活 3系統</span>
+  </div>
+  <div style="text-align:center;margin-bottom:16px">
+    <button class="btn primary" style="font-size:16px;padding:16px 48px" onclick="startQuiz()">✨ はじめる</button>
+  </div>
+  <div class="demo-row">
+    <button class="btn" onclick="runDemo('ps')" style="border-color:#7c3aed;color:#7c3aed;background:#faf5ff">🧠 デモ：心理・社会タイプ</button>
+    <button class="btn" onclick="runDemo('te')" style="border-color:#16a34a;color:#16a34a;background:#f0fdf4">💻 デモ：理工・AIタイプ</button>
+    <button class="btn" onclick="runDemo('sp')" style="border-color:#d97706;color:#d97706;background:#fffbeb">🏃 デモ：スポーツ・健康タイプ</button>
+  </div>
+  <p class="note" style="margin-top:20px;text-align:center">※ 結果は探究テーマを見つけるための参考情報です。</p>
+</div>
+
+<!-- 質問画面 -->
+<div class="screen" id="s-quiz">
+  <div class="q-meta" id="q-meta"></div>
+  <div class="prog-wrap"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+  <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+    <button class="btn" onclick="goHome()" style="font-size:12px;padding:8px 18px;color:var(--muted);border-color:#e0ddd6">🏠 スタートに戻る</button>
+  </div>
+  <div class="tip-box" style="margin-bottom:16px">💡 このページの質問にすべて回答すると「次のページへ」ボタンが押せます</div>
+  <div class="card">
+    <div id="q-text" style="display:none"></div>
+    <div id="scale-wrap"></div>
+  </div>
+  <div class="nav-row">
+    <button class="btn" id="btn-back" onclick="goBack()" disabled>← 前のページへ</button>
+    <button class="btn primary" id="btn-next" onclick="goNext()" disabled>次のページへ →</button>
+  </div>
+</div>
+
+<!-- 結果画面 -->
+<div class="screen" id="s-result">
+  <div class="result-hero" id="result-hero">
+    <div class="r-title">🎊 あなたの探究タイプ</div>
+    <div class="r-sub">90問の回答をもとに分析しました</div>
+  </div>
+
+  <div class="section-label">関心が強い分野 トップ5</div>
+  <p class="filter-hint" id="filter-hint">👆 分野カードをタップするとキーワードを絞り込めます</p>
+  <div class="top3-grid" id="top3"></div>
+
+  <div class="section-label">あなたに近いキーワード</div>
+  <p class="kw-select-hint">💡 気になるキーワードをタップして選ぶと、AIテーマ生成に反映されます</p>
+  <div class="kw-grid" id="kw10"></div>
+  <div class="selected-kw-bar" id="selected-kw-bar">⭐ 選択中：<span id="selected-kw-text"></span></div>
+
+  <div class="section-label">あなたへの探究テーマ候補</div>
+  <div id="ai-theme-wrap">
+    <div class="tip-box">✨ あなたの分野・キーワードをもとに、AIが探究テーマ候補を6つ生成します。ログイン不要で使えます。</div>
+    <div style="text-align:center">
+      <button class="btn primary" id="btn-gen" onclick="generateThemes()" style="font-size:15px;padding:14px 36px">🤖 探究テーマ候補を生成する</button>
+    </div>
+    <div id="ai-loading" style="display:none;margin-top:20px;text-align:center">
+      <div style="font-size:32px;animation:bounce 1s ease infinite">🤔</div>
+      <div style="font-size:14px;color:var(--muted);margin-top:8px">AIが考え中です… しばらくお待ちください</div>
+    </div>
+    <div class="theme-list" id="ai-result" style="margin-top:16px"></div>
+  </div>
+
+  <div class="section-label" style="margin-top:28px">全16分野 スコア分布</div>
+  <div class="radar-wrap" id="radar-wrap">
+    <canvas id="radar-chart" width="500" height="500"></canvas>
+    <div class="radar-legend" id="radar-legend"></div>
+  </div>
+
+  <div class="section-label" style="margin-top:28px">結果を保存・共有する</div>
+  <div class="share-row">
+    <button class="share-btn" onclick="exportText()" style="border-color:#6bcb77;color:#166534;background:#f0fdf4">📋 テキストでコピー</button>
+    <button class="share-btn" onclick="exportImage()" style="border-color:#4d96ff;color:#1e3a8a;background:#eff6ff">🖼️ 画像として保存</button>
+    <button class="share-btn" onclick="exportFavThemes()" id="btn-fav-export" style="border-color:#f59e0b;color:#92400e;background:#fffbeb;display:none">⭐ お気に入りテーマをコピー</button>
+  </div>
+  <div id="copy-msg" style="display:none;margin-top:8px;font-size:13px;color:#16a34a;font-weight:700">✅ クリップボードにコピーしました！</div>
+
+  <div style="margin-top:16px">
+    <button class="teacher-toggle" onclick="toggleTeacher()">👩‍🏫 先生用：スコア詳細を見る</button>
+    <div class="teacher-panel" id="teacher-panel">
+      <div style="font-size:13px;font-weight:700;color:#c4b5fd;margin-bottom:12px">📊 全16分野 スコア一覧（先生用）</div>
+      <div id="teacher-bars"></div>
+      <div class="teacher-note">※ このビューは生徒には表示されません。スコアは各分野への関心の強さを0〜100で表したものです。</div>
+    </div>
+  </div>
+
+  <div class="restart-row">
+    <button class="btn primary" onclick="restart()">🔄 もう一度やり直す</button>
+    <button class="btn" onclick="goHome()" style="border-color:#e0ddd6;color:var(--muted)">🏠 スタートに戻る</button>
+  </div>
+  <p class="note" style="text-align:center">※ スコアは関心の傾向を示すものです。探究テーマを考える出発点にしてください。</p>
+</div>
+
+</div>
+<!-- トップに戻るボタン -->
+<button class="top-btn" id="top-btn" onclick="goToTop()" title="トップに戻る">⬆</button>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+const FIELDS=[
+  {id:"sp",name:"身体・スポーツ科学系",short:"スポーツ科学",bg:"#eff6ff",tc:"#1e3a8a",bc:"#bfdbfe",bar:"#2563eb",
+   kws:["部活動","ケガの予防","体力づくり","プロスポーツ","スポーツ心理学","チームワーク","コーチング","スポーツ観戦","応援文化","オリンピック","パラリンピック","スポーツ栄養学","水分補給","ウォーミングアップ","戦術分析","スポーツビジネス","eスポーツ","障がいとスポーツ","女性アスリート","スポーツ医学","フィジカルトレーニング","メンタルトレーニング","競技人口","記録・データ分析","体育の授業","健康寿命","リハビリテーション","マラソン・ランニング","スタジアム設計","スカウティング","スポーツと地域","アスリートのキャリア","ドーピング問題","バイオメカニクス","スポーツルール変更","身体能力と遺伝","睡眠と運動","老化と運動","子どもの運動習慣","スポーツと教育"]},
+  {id:"nu",name:"食・農・生活科学系",short:"食農科学",bg:"#fdf4ff",tc:"#6b21a8",bc:"#e9d5ff",bar:"#9333ea",
+   kws:["食文化","発酵食品","地産地消","フードロス削減","食品添加物","有機農業","料理と科学","食物アレルギー","世界の料理","給食","栄養バランス","食育","腸内細菌","味覚のしくみ","食の安全","ファストフード","ベジタリアン・ヴィーガン","食品ロス","農業体験","食と環境","調理技術","スローフード","食品ラベル","地域の食材","料理と文化","エシカル消費","フードバンク","農薬と農業","水産業","畜産と環境","食と宗教","伝統食","弁当文化","食欲と心理","食と貧困","外食産業","スーパーと物流","食と気候変動","食と高齢化","昆虫食・代替タンパク"]},
+  {id:"en",name:"言語・コミュニケーション系",short:"言語学",bg:"#fff7ed",tc:"#9a3412",bc:"#fed7aa",bar:"#ea580c",
+   kws:["英語学習","多言語教育","手話・ノンバーバル","異文化コミュニケーション","翻訳・通訳","方言と標準語","言語と思考","語源と歴史","スラングとSNS言語","バイリンガル教育","ことわざ","敬語のしくみ","言語習得","外来語","AIと翻訳","世界共通語","言語の絶滅","読書と語彙","プレゼンテーション","ディベート","メディアの言語","広告とコピーライティング","ジャーナリズム","ポッドキャスト・動画発信","言葉と差別","説得の技術","ユーモアと文化","詩と言葉","物語の構造","言語と感情","声と発音","映画と字幕","国際交流","留学","言語政策","手書きとタイピング","子どもの言語発達","言葉の変化","アクセントと方言","創作と言葉"]},
+  {id:"ed",name:"教育・学習科学系",short:"教育学",bg:"#fefce8",tc:"#854d0e",bc:"#fef08a",bar:"#ca8a04",
+   kws:["学習法","記憶のメカニズム","集中力","探究学習","アクティブラーニング","不登校・学校外学習","教育格差","特別支援教育","フィンランド教育","オンライン学習","AI家庭教師","批判的思考","メタ認知","校則と自由","学校の歴史","子どもの権利","評価と成績","塾・予備校","ゲームと学習","保護者と教育","失敗から学ぶ","動機づけ・やる気","教師のあり方","世界の教育制度","高校と進路","大学の役割","学力格差","読書習慣","反転授業","学習障害","褒めと罰","教育と経済","図書館の役割","STEM教育","市民教育","夢と目標設定","習い事","異年齢学習","民主主義と教育","未来の学校像"]},
+  {id:"ar",name:"芸術・文化・クリエイティブ系",short:"芸術・デザイン",bg:"#fdf2f8",tc:"#831843",bc:"#fbcfe8",bar:"#db2777",
+   kws:["絵画・イラスト","音楽と感情","映像制作","舞台・演劇","ダンス","ファッションデザイン","グラフィックデザイン","建築とデザイン","伝統工芸","アニメ・漫画","写真","書道","陶芸・彫刻","デジタルアート","インスタレーション","アート療法","著作権","アートと社会変革","路上アート・グラフィティ","美術館・ギャラリー","ゲームデザイン","音楽プロデュース","コンサート・ライブ","文化祭の企画","SNS発信とブランディング","コスプレ・サブカルチャー","映画批評","アートと政治","商業デザインと純粋芸術","色彩心理","インテリアデザイン","音楽ジャンルの変遷","楽器と音響","ユーザー体験デザイン","広告とアート","ストリートカルチャー","メディアアート","ゲームと物語","ファッションと社会","創作活動の意義"]},
+  {id:"ja",name:"文学・思想・哲学系",short:"文学・哲学",bg:"#f0fdf4",tc:"#14532d",bc:"#bbf7d0",bar:"#16a34a",
+   kws:["小説・物語","古典文学","詩・俳句・短歌","哲学的問い","倫理学","宗教と思想","生死とは何か","正義とは何か","幸福論","自由意志","アイデンティティ","読書感想","作家の生涯","文章を書く","批評・レビュー","言語と思考","日本文学","世界文学","SFと未来","物語と共感","神話と民話","歴史と語り","エッセイ","創作小説","文学賞","言葉の力","文体と表現","翻訳文学","絵本と子ども","社会と文学","ことわざ・格言","日記と記録","書くことの意味","読むことの意味","物語療法","フィクションと現実","文学と映画","比較文学","古語","現代語と変化"]},
+  {id:"so",name:"社会・政治・法律系",short:"社会・政治",bg:"#fff1f2",tc:"#881337",bc:"#fecdd3",bar:"#e11d48",
+   kws:["選挙と民主主義","法律のしくみ","人権","ジェンダー平等","LGBTQ+","格差社会","メディアリテラシー","SNSとフェイクニュース","税金と社会保障","労働権","ボランティア","NPO・市民活動","差別と偏見","犯罪と刑罰","若者と政治","移民・外国人政策","貧困と支援","消費者問題","国際法","メディアと権力","公共政策","社会保障","育児・介護と社会","住民運動","コミュニティ形成","情報公開","社会運動の歴史","統計とデータ","行政のしくみ","裁判と司法","議会と立法","選挙制度","国際機関","平和と安全保障","難民問題","市民の義務","公共財","社会的起業","制度と変革","未来の社会像"]},
+  {id:"ps",name:"心理・人間行動科学系",short:"心理学",bg:"#eff6ff",tc:"#1e3a8a",bc:"#bfdbfe",bar:"#2563eb",
+   kws:["感情のしくみ","モチベーション","自己肯定感","認知バイアス","行動経済学","メンタルヘルス","ストレスと対処","人間関係","承認欲求","集団心理","第一印象","記憶と忘却","夢と潜在意識","トラウマと回復","カウンセリング","依存症","思春期と発達","幸福感の研究","色と心理","音楽と気分","スマホ依存","推し活と心理","ハラスメント","共感と思いやり","自己分析","怒りのコントロール","進化心理学","愛着理論","孤独と孤立","アイデンティティ","批判的思考","偏見の形成","創造性と心理","宗教と心理","睡眠と心","リーダーシップ","説得と影響","子どもの発達","老年心理学","異文化と心理"]},
+  {id:"ge",name:"歴史・地理・文化人類学系",short:"歴史・地理",bg:"#fefce8",tc:"#854d0e",bc:"#fef08a",bar:"#ca8a04",
+   kws:["世界史の流れ","日本史と現在","地政学","文化人類学","宗教と文明","遺跡・世界遺産","地形と気候","人口分布","食と地域文化","戦争と平和","植民地の歴史","冷戦","移民・難民の歴史","地名の由来","地図と空間","国境問題","日本の地域差","都市の発展","農業と土地","海と文明","大航海時代","明治維新","江戸時代","現代史","インフラと国家","博物館・資料館","歴史と記憶","口承と文化","祭りと民俗","観光と地域","防災と地形","環境と歴史","貿易の歴史","帝国主義","革命と変革","歴史上の女性","少数民族","近代化","歴史の複数の見方","過去と未来"]},
+  {id:"mk",name:"工学・ものづくり・建築系",short:"工学・建築",bg:"#f0fdf4",tc:"#14532d",bc:"#bbf7d0",bar:"#16a34a",
+   kws:["ものを作る喜び","電子工作","3Dプリンター","Arduino・マイコン","DIY・修理","プロダクトデザイン","建築設計","ユニバーサルデザイン","木工・金属加工","アップサイクル","製造業","職人技","材料科学","CAD設計","ロボット工学","機械のしくみ","インフラ設計","橋・道路・トンネル","都市計画","住宅設計","伝統建築","構造力学","流体・熱工学","プログラムと制御","工場と自動化","IoTとスマートホーム","再生可能エネルギー技術","バッテリー開発","航空・宇宙工学","輸送と物流","ものの一生と廃棄","エコデザイン","包装・梱包","コスト設計","プロトタイプ思考","アイデアの具現化","ハードウェアスタートアップ","道具の歴史","技術と社会","次世代のものづくり"]},
+  {id:"ph",name:"物理・化学・数理科学系",short:"物理・数理",bg:"#f0f9ff",tc:"#0c4a6e",bc:"#bae6fd",bar:"#0284c7",
+   kws:["力学と運動","重力と宇宙","光と電磁波","音波と振動","電気と磁気","熱力学","量子力学","相対性理論","宇宙論","素粒子物理","化学反応","元素と周期表","酸・アルカリ","高分子と材料","有機化学","核と放射線","エネルギー変換","数学的モデル","統計と確率","微積分の応用","暗号と数学","フラクタル","カオス理論","コンピューター科学の数学","天気と気象数値","地震波と物理","プラズマ","超伝導","光学と眼鏡","音楽と物理","なぜ空は青いか","虹のしくみ","時間とは何か","数学の美しさ","数学者の物語","実験のデザイン","誤差と精度","シミュレーション","科学哲学","未解決の問題"]},
+  {id:"bi",name:"生物・生命・医療科学系",short:"生命・医療",bg:"#f0fdf4",tc:"#14532d",bc:"#bbf7d0",bar:"#16a34a",
+   kws:["細胞と生命","DNA・遺伝・進化","生態系","絶滅危惧種","外来種問題","微生物の世界","免疫のしくみ","感染症と予防","ウイルスと細菌","ワクチン開発","脳と神経科学","感覚器官","光合成と植物","菌類・カビ","海洋生物","昆虫の世界","動物行動学","バイオテクノロジー","遺伝子編集","再生医療","老化の科学","がんとは何か","精神医学","睡眠の科学","薬と医療","解剖生理学","共生と寄生","食物連鎖","生物と気候変動","絶滅と復活","農業と育種","人体の不思議","発生と分化","種の多様性","標本と分類","野外観察","バイオームと環境","医療倫理","ゲノム医療","生命の起源"]},
+  {id:"ev",name:"環境・地球・宇宙科学系",short:"環境・宇宙",bg:"#ecfdf5",tc:"#065f46",bc:"#6ee7b7",bar:"#059669",
+   kws:["地球温暖化","CO2と温室効果","再生可能エネルギー","気候変動","大気汚染","海洋プラスチック","水循環","生物多様性","カーボンニュートラル","地球の歴史","プレートテクトニクス","火山と地震","海流と気候","宇宙の構造","太陽系","惑星探査","宇宙開発","天体観測","オーロラ","気象と気候","土壌と生態系","水質汚染","里山保全","都市ヒートアイランド","エネルギーミックス","水素エネルギー","核融合","自然災害","環境アセスメント","砂漠化","脱炭素社会","持続可能な消費","廃棄物処理","環境法・条約","グリーンテック","宇宙ごみ","成層圏と気候","地球外生命体","惑星の比較","宇宙と時間"]},
+  {id:"sd",name:"国際・平和・開発協力系",short:"国際開発",bg:"#fdf4ff",tc:"#6b21a8",bc:"#e9d5ff",bar:"#9333ea",
+   kws:["SDGsの17目標","貧困と格差","食料安全保障","ジェンダーと開発","教育の国際格差","難民・移民","平和構築","紛争と和解","国連と国際機関","ODA・国際援助","フェアトレード","エシカル消費","人権と国際法","社会的起業","マイクロファイナンス","インクルージョン","デジタルデバイド","グローバルヘルス","感染症と世界","気候正義","環境難民","子どもの権利条約","先住民族の権利","武器と安全保障","核兵器廃絶","国際的な市民活動","文化間対話","グローバル市民","在日外国人","異文化摩擦","移住と帰属","経済援助の効果","持続可能な農業","水と衛生","教育と貧困脱出","平和教育","地雷・不発弾","人身取引","コミュニティ開発","次世代の国際協力"]},
+  {id:"te",name:"情報・AI・テクノロジー系",short:"情報・AI",bg:"#fff7ed",tc:"#9a3412",bc:"#fed7aa",bar:"#ea580c",
+   kws:["AI・機械学習","生成AIと創造","プログラミング","アルゴリズム","データサイエンス","サイバーセキュリティ","個人情報・プライバシー","SNSのアルゴリズム","フェイクニュース","自動運転","ロボット工学","IoTとスマートシティ","量子コンピュータ","ブロックチェーン","メタバース・VR","ゲーム開発","スマートフォンの仕組み","5G・6G通信","デジタルデバイド","AIと著作権","医療AI","農業×テクノロジー","宇宙産業","バッテリー革新","電気自動車","ドローン","フィンテック","EdTech","AIと雇用","人間とロボットの共存","テクノロジー倫理","ディープフェイク","監視社会","ゲノム編集と技術","デジタルアート","オープンソース","スタートアップ","技術と民主主義","情報リテラシー","未来の職業"]},
+  {id:"lo",name:"地域・まちづくり・観光系",short:"地域・観光",bg:"#f5f3ff",tc:"#3b0764",bc:"#ddd6fe",bar:"#7c3aed",
+   kws:["まちづくり","地域活性化","観光と地域","空き家問題","過疎化と移住","商店街の再生","地域ブランド","地元の歴史","伝統工芸の継承","地産地消","農村体験","地域メディア","防災と地域","公共交通","コミュニティカフェ","地域福祉","子育て支援","高齢者ケア","若者と地域","ふるさと納税","シェアリングエコノミー","地域通貨","市役所の役割","図書館と地域","地域アート","グリーンツーリズム","スポーツと地域","祭りと観光","移住定住政策","里山保全","地域教育","インバウンド観光","バリアフリーなまち","公共空間のデザイン","地域の課題発見","地域と学校","スマート農業","町の未来設計","地域コミュニティの形成","ローカルSDGs"]}
+];
+
+const QUESTIONS=[
+  // スポーツ科学・健康科学系
+  {q:"スポーツの試合を見ていると、選手の動きや戦術が気になる",l:"care",f:["sp"]},
+  {q:"部活動や体育の授業に意欲的に取り組む方だ",l:"fit",f:["sp"]},
+  {q:"ケガの予防やリハビリのしくみに興味がある",l:"care",f:["sp"]},
+  {q:"スポーツ選手のメンタルや心理面が気になる",l:"care",f:["sp","ps"]},
+  {q:"eスポーツや障がい者スポーツにも関心がある",l:"care",f:["sp"]},
+  // 食・農・生活科学系
+  {q:"食べ物が体に与える影響に興味がある",l:"care",f:["nu"]},
+  {q:"料理を自分で作ったり、レシピを工夫したりしたいと思う",l:"want",f:["nu"]},
+  {q:"発酵食品や地産地消など、食の多様性に関心がある",l:"care",f:["nu","lo"]},
+  {q:"フードロスや食品廃棄問題が気になる",l:"care",f:["nu","sd"]},
+  {q:"世界各地の食文化や食習慣の違いが面白いと思う",l:"think",f:["nu","ge"]},
+  // 言語・コミュニケーション系
+  {q:"英語や外国語を使って誰かと話してみたいと思う",l:"want",f:["en"]},
+  {q:"外国の映画や音楽を通じて文化の違いを感じることが好き",l:"like",f:["en","ar"]},
+  {q:"方言・なまり・スラングなど言葉のバリエーションが面白い",l:"feel",f:["en","ja"]},
+  {q:"AIの翻訳ツールや多言語教育の未来に興味がある",l:"care",f:["en","te"]},
+  {q:"言葉が人の思考や感情に与える影響に関心がある",l:"care",f:["en","ps"]},
+  // 教育・学習科学系
+  {q:"自分なりの勉強法を工夫したことがある",l:"freq",f:["ed"]},
+  {q:"なぜ学校に行くのか、教育の意味について考えたことがある",l:"freq",f:["ed","so"]},
+  {q:"不登校や学力格差など、教育の課題が気になる",l:"care",f:["ed","so"]},
+  {q:"ゲームやAIを使った新しい学び方に興味がある",l:"care",f:["ed","te"]},
+  {q:"誰かに何かを教えたり、伝えたりすることが好き",l:"like",f:["ed"]},
+  // 芸術・文化・クリエイティブ系
+  {q:"絵・音楽・映像・写真など何かを表現することが好き",l:"like",f:["ar"]},
+  {q:"デザインやファッションに自分なりのこだわりがある",l:"fit",f:["ar"]},
+  {q:"文化祭や地域のイベントで何かを企画・制作するのが好き",l:"like",f:["ar","lo"]},
+  {q:"アートが社会や人の気持ちに与える影響に興味がある",l:"care",f:["ar","ps"]},
+  {q:"伝統芸能・工芸・サブカルチャーなど文化の多様性が面白い",l:"feel",f:["ar","ge"]},
+  // 文学・思想・哲学系
+  {q:"小説・詩・エッセイなど文章を読むことが好き",l:"like",f:["ja"]},
+  {q:"古典や昔の言葉の世界に興味がある",l:"care",f:["ja"]},
+  {q:"「正義とは何か」「幸福とは何か」など哲学的な問いが気になる",l:"care",f:["ja","so"]},
+  {q:"文章を書いて自分の考えや気持ちを表現したいと思う",l:"want",f:["ja","ed"]},
+  {q:"物語や言葉が人の心を動かすしくみに関心がある",l:"care",f:["ja","ps"]},
+  // 社会・政治・法律系
+  {q:"選挙・税金・法律など社会のしくみを知りたいと思う",l:"want",f:["so"]},
+  {q:"ジェンダー・人権・差別などの問題について考えたことがある",l:"freq",f:["so","ps"]},
+  {q:"SNSのデマやメディアの報道のあり方が気になる",l:"care",f:["so","te"]},
+  {q:"若者が社会や政治に参加することに意味があると思う",l:"think",f:["so"]},
+  {q:"ボランティアやNPOなど市民が動くことへの関心がある",l:"care",f:["so","lo"]},
+  // 心理・人間行動科学系
+  {q:"自分や他者の感情・行動の理由を考えることがある",l:"freq",f:["ps"]},
+  {q:"ストレス・メンタルヘルス・自己肯定感に関心がある",l:"care",f:["ps"]},
+  {q:"人が集団でいるときに起きる心理（同調・嫉妬など）が面白い",l:"feel",f:["ps","so"]},
+  {q:"認知バイアスや行動経済学など「人はなぜ非合理な選択をするか」が気になる",l:"care",f:["ps"]},
+  {q:"カウンセリングや心理支援の仕事に関心がある",l:"care",f:["ps","ed"]},
+  // 歴史・地理・文化人類学系
+  {q:"歴史上の出来事や人物が現代とどうつながるかを考えるのが好き",l:"like",f:["ge"]},
+  {q:"世界の地形・気候・国境の成り立ちに興味がある",l:"care",f:["ge","ph"]},
+  {q:"異なる文化・宗教・民族の暮らし方に関心がある",l:"care",f:["ge","so"]},
+  {q:"博物館・遺跡・世界遺産など歴史の痕跡を訪ねることが好き",l:"like",f:["ge"]},
+  {q:"戦争・植民地・難民など歴史の暗い側面についても向き合いたい",l:"want",f:["ge","sd"]},
+  // 工学・ものづくり・建築系
+  {q:"ものを作ったり、壊れたものを修理したりすることが好き",l:"like",f:["mk"]},
+  {q:"3Dプリンターや電子工作など新しいものづくりに挑戦したい",l:"want",f:["mk","te"]},
+  {q:"建物・橋・都市など人が設計した構造物に興味がある",l:"care",f:["mk"]},
+  {q:"ユニバーサルデザインや誰もが使いやすいモノづくりに関心がある",l:"care",f:["mk","sd"]},
+  {q:"アップサイクルや廃材を活かすものづくりに魅力を感じる",l:"feel",f:["mk","ev"]},
+  // 物理・化学・数理科学系
+  {q:"自然現象や物理法則の「なぜ？」を考えるのが好き",l:"like",f:["ph"]},
+  {q:"宇宙・素粒子・量子など目に見えない世界に興味がある",l:"care",f:["ph"]},
+  {q:"数学や統計が実生活や社会問題に使われることが面白い",l:"feel",f:["ph","so"]},
+  {q:"化学反応や材料のしくみに興味がある",l:"care",f:["ph","mk"]},
+  {q:"理科の実験で予想外の結果が出たときにわくわくする",l:"feel",f:["ph","bi"]},
+  // 生物・生命・医療科学系
+  {q:"動物・植物・昆虫など生き物を観察することが好き",l:"like",f:["bi"]},
+  {q:"遺伝・DNA・進化など生命のしくみに興味がある",l:"care",f:["bi"]},
+  {q:"ウイルス・免疫・ワクチンなど医療・感染症の話題が気になる",l:"care",f:["bi"]},
+  {q:"再生医療・ゲノム編集など最先端の生命科学に関心がある",l:"care",f:["bi","te"]},
+  {q:"生態系のバランスや絶滅・外来種の問題が気になる",l:"care",f:["bi","ev"]},
+  // 環境・地球・宇宙科学系
+  {q:"地球温暖化や気候変動の深刻さを実感することがある",l:"freq",f:["ev","sd"]},
+  {q:"再生可能エネルギーや脱炭素社会の実現方法に興味がある",l:"care",f:["ev"]},
+  {q:"海洋プラスチックや土壌汚染など環境汚染問題が気になる",l:"care",f:["ev"]},
+  {q:"自然災害や地球のしくみ（地震・火山・気象）に興味がある",l:"care",f:["ev","ge","ph"]},
+  {q:"省エネやエコな生活を日常的に意識している方だ",l:"fit",f:["ev","mk"]},
+  // 国際・平和・開発協力系
+  {q:"世界の貧困・格差・飢餓問題を自分ごととして考えたことがある",l:"freq",f:["sd","so"]},
+  {q:"フェアトレードやエシカル消費など倫理的な消費に関心がある",l:"care",f:["sd"]},
+  {q:"難民・移民・国際支援に関する問題が気になる",l:"care",f:["sd","ge"]},
+  {q:"SDGsの目標を地域や学校で実現する方法を考えたことがある",l:"freq",f:["sd","lo"]},
+  {q:"平和・核廃絶・紛争解決について学びたいと思う",l:"want",f:["sd","ge"]},
+  // 情報・AI・テクノロジー系
+  {q:"AIやロボットが社会を変えていく未来に強い関心がある",l:"care",f:["te"]},
+  {q:"プログラミングやアプリ開発に挑戦してみたいと思う",l:"want",f:["te","mk"]},
+  {q:"個人情報・サイバー犯罪・フェイクニュースの問題が気になる",l:"care",f:["te","so"]},
+  {q:"テクノロジーが医療・農業・教育を変える可能性に興味がある",l:"care",f:["te","bi"]},
+  {q:"AIや自動化で人の仕事や生き方がどう変わるか気になる",l:"care",f:["te","so"]},
+  // 地域・まちづくり・観光系
+  {q:"地元の歴史・名産・文化に詳しいか、もっと知りたいと思う",l:"fit",f:["lo"]},
+  {q:"商店街の変化・空き家・過疎化など地域の課題が気になる",l:"care",f:["lo","so"]},
+  {q:"地域のお祭りやイベントの運営に関わったことがある",l:"freq",f:["lo"]},
+  {q:"観光や移住を通じて地域を元気にするアイデアに関心がある",l:"care",f:["lo","sd"]},
+  {q:"将来、地元や地域社会に何らかの形で貢献したいと思う",l:"want",f:["lo","so"]},
+  // 横断的な問い
+  {q:"体を動かすことと心の健康の関係に興味がある",l:"care",f:["sp","ps"]},
+  {q:"社会のルールや制度は変えられると感じることがある",l:"freq",f:["so","ed"]},
+  {q:"自分とは異なる価値観の人と話すことが刺激になる",l:"feel",f:["ps","en","ge"]},
+  {q:"地球や宇宙の壮大さに感動することがある",l:"freq",f:["ph","bi","ev"]},
+  {q:"日常の中に科学・技術・デザインの工夫を見つけることがある",l:"freq",f:["ph","te","mk"]},
+  {q:"自分の「好き」や「気になる」を深く掘り下げたいと思う",l:"want",f:["ed","ar","ja"]},
+  {q:"環境問題の解決にテクノロジーが大きく貢献できると思う",l:"think",f:["ev","te"]},
+  {q:"人の行動や社会のしくみの裏にある理由を探るのが好き",l:"like",f:["ps","so"]},
+  {q:"地域と世界がつながっていると感じる出来事に関心がある",l:"care",f:["lo","sd","ge"]},
+  {q:"自分が関わることで、誰かの役に立てると感じる瞬間が好き",l:"like",f:["so","lo","ed"]},
+];
+
+
+const PAGE_SIZE=10;
+const VALS=[0,1,2,3,4,5];
+
+// 選択肢タイプ定数
+const LABELS={
+  freq:["まったくない","ほとんどない","少しある","わりとある","よくある","非常によくある"],
+  want:["全く思わない","あまり思わない","少し思う","まあ思う","強く思う","非常に強く思う"],
+  like:["全く好きでない","あまり好きでない","少し好き","まあ好き","とても好き","大好き"],
+  care:["全く気にならない","あまり気にならない","少し気になる","まあ気になる","とても気になる","非常に気になる"],
+  think:["全くそう思わない","あまりそう思わない","少しそう思う","まあそう思う","そう思う","強くそう思う"],
+  fit:["全く当てはまらない","あまり当てはまらない","少し当てはまる","まあ当てはまる","当てはまる","非常に当てはまる"],
+  feel:["全く感じない","あまり感じない","少し感じる","まあ感じる","とても感じる","非常に感じる"],
+};
+function labelFor(q){return LABELS[q.l]||LABELS.care;}
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+let ORDER=[];
+let answers={};
+let page=0;
+
+function scrollTop(){
+  // モバイル含め確実にトップへ
+  window.scrollTo(0,0);
+  document.body.scrollTop=0;
+  document.documentElement.scrollTop=0;
+  const outer=document.querySelector('.outer');
+  if(outer) outer.scrollTop=0;
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  scrollTop();
+}
+
+function startQuiz(){
+  ORDER=shuffle(QUESTIONS.map((_,i)=>i));
+  answers={};
+  page=0;
+  quizActive=true;
+  clearSaved();
+  renderPage();
+  show('s-quiz');
+}
+
+function totalPages(){return Math.ceil(ORDER.length/PAGE_SIZE);}
+
+function renderPage(){
+  const tp=totalPages();
+  const start=page*PAGE_SIZE;
+  const end=Math.min(start+PAGE_SIZE,ORDER.length);
+  const pageQs=ORDER.slice(start,end);
+
+  document.getElementById('q-meta').textContent=`ページ ${page+1} / ${tp}（質問 ${start+1}〜${end}問目）`;
+  document.getElementById('prog-bar').style.width=`${Math.round((page/tp)*100)}%`;
+
+  const wrap=document.getElementById('scale-wrap');
+  wrap.innerHTML='';
+
+  pageQs.forEach((qi,pi)=>{
+    const q=QUESTIONS[qi];
+    const lbls=labelFor(q);
+    const block=document.createElement('div');
+    block.dataset.qi=qi;
+    block.style.cssText='margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #e0ddd6';
+
+    const qnum=document.createElement('div');
+    qnum.style.cssText='font-size:12px;color:#888;margin-bottom:4px';
+    qnum.textContent=`Q${start+pi+1}`;
+    block.appendChild(qnum);
+
+    const qtext=document.createElement('div');
+    qtext.style.cssText='font-size:15px;font-weight:500;line-height:1.6;color:#1a1a1a;margin-bottom:12px';
+    qtext.textContent=q.q;
+    block.appendChild(qtext);
+
+    const scaleWrap=document.createElement('div');
+    scaleWrap.style.cssText='display:flex;flex-direction:column;gap:5px';
+
+    lbls.forEach((lbl,i)=>{
+      const row=document.createElement('div');
+      const sel=answers[qi]===i;
+      row.className='scale-row'+(sel?' selected':'');
+      row.onclick=()=>selectAnswer(qi,i,block);
+      row.innerHTML=`<div class="radio">${sel?'<div class="radio-inner"></div>':''}</div><div class="scale-label">${i+1}. ${lbl}</div>`;
+      scaleWrap.appendChild(row);
+    });
+    block.appendChild(scaleWrap);
+    wrap.appendChild(block);
+  });
+
+  updateNavButtons(pageQs);
+  document.getElementById('q-text').textContent='';
+}
+
+function selectAnswer(qi,val,block){
+  const wasAnswered=answers[qi]!==undefined;
+  answers[qi]=val;
+
+  // ブロック内の選択肢だけ更新（全再描画しない）
+  block.querySelectorAll('.scale-row').forEach((row,i)=>{
+    const sel=i===val;
+    row.className='scale-row'+(sel?' selected':'');
+    row.querySelector('.radio').innerHTML=sel?'<div class="radio-inner"></div>':'';
+  });
+
+  // 進捗保存
+  saveProgress();
+
+  // ボタン状態更新
+  const pageQs=ORDER.slice(page*PAGE_SIZE,Math.min((page+1)*PAGE_SIZE,ORDER.length));
+  updateNavButtons(pageQs);
+
+  // 初回回答時のみ次の未回答質問へスクロール
+  if(!wasAnswered){
+    setTimeout(()=>{
+      const allBlocks=[...document.querySelectorAll('#scale-wrap > div[data-qi]')];
+      const nextUnanswered=allBlocks.find(b=>answers[parseInt(b.dataset.qi)]===undefined);
+      const target=nextUnanswered||document.getElementById('btn-next');
+      if(target) target.scrollIntoView({behavior:'smooth',block:'center'});
+    },80);
+  }
+}
+
+function updateNavButtons(pageQs){
+  const unanswered=pageQs.filter(qi=>answers[qi]===undefined).length;
+  const btnNext=document.getElementById('btn-next');
+  const isLast=page===totalPages()-1;
+  btnNext.disabled=unanswered>0;
+  if(unanswered===0) btnNext.textContent=isLast?'✅ 結果を見る':'次のページへ →';
+  else btnNext.textContent=isLast?`結果を見る（残り${unanswered}問）`:`次のページへ（残り${unanswered}問未回答）`;
+  document.getElementById('btn-back').disabled=page===0;
+}
+
+function goNext(){
+  const tp=totalPages();
+  const pageQs=ORDER.slice(page*PAGE_SIZE,Math.min((page+1)*PAGE_SIZE,ORDER.length));
+  const unanswered=pageQs.filter(qi=>answers[qi]===undefined).length;
+  if(unanswered>0)return;
+  if(page===tp-1){calcResult();return;}
+  page++;
+  renderPage();
+  scrollTop();
+  setTimeout(scrollTop,100);
+}
+function goBack(){
+  if(page>0){
+    page--;
+    renderPage();
+    scrollTop();
+    setTimeout(scrollTop,100);
+  }
+}
+
+let lastSorted=[];
+let lastFn={};
+let activeFilterId=null;
+
+function calcResult(){
+  const fs={},fc={};
+  FIELDS.forEach(f=>{fs[f.id]=0;fc[f.id]=0;});
+  QUESTIONS.forEach((q,qi)=>{
+    const v=VALS[answers[qi]??0];
+    q.f.forEach(fid=>{fs[fid]+=v;fc[fid]++;});
+  });
+  const fn={};
+  FIELDS.forEach(f=>{const max=fc[f.id]*5;fn[f.id]=max>0?Math.round((fs[f.id]/max)*100):0;});
+  const sorted=[...FIELDS].sort((a,b)=>fn[b.id]-fn[a.id]);
+  lastSorted=sorted;lastFn=fn;activeFilterId=null;
+  selectedKws=new Set();favThemes=new Set();
+  document.getElementById('btn-fav-export').style.display='none';
+
+  // --- トップ5カード ---
+  const rl=['1位','2位','3位','4位','5位'];
+  const medals=['🥇','🥈','🥉','🏅','🎖️'];
+  const t3=document.getElementById('top3');
+  t3.innerHTML='';
+  sorted.slice(0,5).forEach((f,i)=>{
+    const c=document.createElement('div');
+    c.className='rank-card';
+    c.dataset.fid=f.id;
+    c.style.cssText=`background:${f.bg};border-color:${f.bc}`;
+    c.innerHTML=`
+      <div class="rank-medal">${medals[i]}</div>
+      <div class="rank-badge" style="color:${f.tc}">${rl[i]}</div>
+      <div class="rank-name" style="color:${f.tc}">${f.name}</div>
+      <div class="rank-score" style="color:${f.tc}">${fn[f.id]}<span class="rank-pt">点</span></div>
+    `;
+    c.onclick=()=>filterByField(f.id);
+    t3.appendChild(c);
+  });
+
+  // --- キーワード（全分野・全kws） ---
+  renderKeywords(null, sorted, fn);
+
+  // --- レーダーチャート ---
+  const radarLabels=FIELDS.map(f=>f.short||f.name);
+  const radarData=FIELDS.map(f=>fn[f.id]);
+  const radarColors=FIELDS.map(f=>f.bar);
+  const existingChart=Chart.getChart('radar-chart');
+  if(existingChart) existingChart.destroy();
+  const ctx=document.getElementById('radar-chart').getContext('2d');
+  new Chart(ctx,{
+    type:'radar',
+    data:{
+      labels:radarLabels,
+      datasets:[{
+        label:'スコア',
+        data:radarData,
+        backgroundColor:'rgba(99,102,241,0.15)',
+        borderColor:'rgba(99,102,241,0.8)',
+        borderWidth:2.5,
+        pointBackgroundColor:radarColors,
+        pointBorderColor:'#fff',
+        pointBorderWidth:2,
+        pointRadius:5,
+        pointHoverRadius:7,
+        fill:true
+      }]
+    },
+    options:{
+      responsive:true,
+      scales:{r:{
+        min:0,max:100,
+        ticks:{stepSize:25,font:{size:10},backdropColor:'transparent',color:'#9ca3af'},
+        grid:{color:'rgba(0,0,0,0.08)'},
+        angleLines:{color:'rgba(0,0,0,0.08)'},
+        pointLabels:{font:{size:10,family:"'M PLUS Rounded 1c',sans-serif",weight:'700'},color:FIELDS.map(f=>f.tc)}
+      }},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}点`}}}
+    }
+  });
+  const leg=document.getElementById('radar-legend');
+  leg.innerHTML='';
+  FIELDS.forEach(f=>{
+    const item=document.createElement('div');item.className='radar-legend-item';
+    item.innerHTML=`<div class="radar-legend-dot" style="background:${f.bar}"></div>${f.name}`;
+    leg.appendChild(item);
+  });
+
+  renderTeacherBars(sorted,fn);
+  quizActive=false;
+  clearSaved();
+  show('s-result');
+}
+
+let selectedKws=new Set();
+
+function renderKeywords(filterId, sorted, fn){
+  const kwEl=document.getElementById('kw10');
+  kwEl.innerHTML='';
+  const hint=document.getElementById('filter-hint');
+
+  let kwsToShow=[];
+  if(!filterId){
+    const kwS={};
+    FIELDS.forEach(f=>f.kws.forEach(kw=>{kwS[kw]=(kwS[kw]||0)+fn[f.id];}));
+    kwsToShow=Object.entries(kwS).sort((a,b)=>b[1]-a[1]).slice(0,30).map(e=>({kw:e[0],field:FIELDS.find(f=>f.kws.includes(e[0]))||sorted[0]}));
+    hint.textContent='👆 分野カードをタップするとキーワードを絞り込めます';
+  } else {
+    const f=FIELDS.find(x=>x.id===filterId);
+    kwsToShow=f.kws.map(kw=>({kw,field:f}));
+    hint.textContent=`📌 「${f.name}」のキーワードを表示中 — もう一度タップで解除`;
+  }
+
+  kwsToShow.forEach(({kw,field:mf})=>{
+    const p=document.createElement('div');
+    p.className='kw-pill'+(selectedKws.has(kw)?' kw-selected':'');
+    p.style.cssText=`background:${mf.bg};color:${mf.tc};border-color:${mf.bc}`;
+    p.textContent=kw;
+    p.onclick=()=>{
+      if(selectedKws.has(kw)) selectedKws.delete(kw);
+      else selectedKws.add(kw);
+      p.classList.toggle('kw-selected');
+      updateSelectedKwBar();
+    };
+    kwEl.appendChild(p);
+  });
+}
+
+function updateSelectedKwBar(){
+  const bar=document.getElementById('selected-kw-bar');
+  const txt=document.getElementById('selected-kw-text');
+  if(selectedKws.size>0){
+    bar.style.display='block';
+    txt.textContent=[...selectedKws].join('・');
+  } else {
+    bar.style.display='none';
+  }
+}
+
+// ===== TEACHER VIEW =====
+function renderTeacherBars(sorted,fn){
+  const tb=document.getElementById('teacher-bars');
+  tb.innerHTML='';
+  sorted.forEach(f=>{
+    const r=document.createElement('div');
+    r.className='teacher-field-row';
+    r.innerHTML=`<div class="teacher-label">${f.short||f.name}</div><div class="teacher-bar-bg"><div class="teacher-bar-fill" style="width:${fn[f.id]}%;background:${f.bar}"></div></div><div class="teacher-val">${fn[f.id]}</div>`;
+    tb.appendChild(r);
+  });
+}
+function toggleTeacher(){
+  document.getElementById('teacher-panel').classList.toggle('open');
+}
+
+// ===== FAVORITE THEMES =====
+let favThemes=new Set();
+function toggleFav(idx,btn){
+  if(favThemes.has(idx)){favThemes.delete(idx);btn.textContent='☆';btn.classList.remove('active');}
+  else{favThemes.add(idx);btn.textContent='⭐';btn.classList.add('active');}
+  const exportBtn=document.getElementById('btn-fav-export');
+  exportBtn.style.display=favThemes.size>0?'inline-flex':'none';
+}
+function exportFavThemes(){
+  const cards=[...document.querySelectorAll('#ai-result .theme-card')];
+  const text=[...favThemes].sort().map(i=>{
+    const c=cards[i];
+    return `⭐ テーマ${i+1}：${c.querySelector('.theme-q')?.textContent||''}\n　→ ${c.querySelector('.theme-reason')?.textContent||''}`;
+  }).join('\n\n');
+  navigator.clipboard.writeText('【お気に入りの探究テーマ候補】\n\n'+text).then(()=>{
+    const msg=document.getElementById('copy-msg');msg.style.display='block';
+    setTimeout(()=>msg.style.display='none',3000);
+  }).catch(()=>alert(text));
+}
+
+function filterByField(fid){
+  const cards=document.querySelectorAll('.rank-card');
+  if(activeFilterId===fid){
+    // 解除
+    activeFilterId=null;
+    cards.forEach(c=>c.classList.remove('active-filter'));
+    renderKeywords(null,lastSorted,lastFn);
+  } else {
+    activeFilterId=fid;
+    cards.forEach(c=>c.classList.remove('active-filter'));
+    const target=document.querySelector(`.rank-card[data-fid="${fid}"]`);
+    if(target) target.classList.add('active-filter');
+    renderKeywords(fid,lastSorted,lastFn);
+  }
+}
+
+function restart(){ORDER=shuffle(QUESTIONS.map((_,i)=>i));answers={};page=0;saveProgress();renderPage();show('s-quiz');}
+function goHome(){show('s-intro');checkResume();}
+
+// ===== SESSION STORAGE =====
+function saveProgress(){
+  try{sessionStorage.setItem('tankyu_answers',JSON.stringify(answers));sessionStorage.setItem('tankyu_order',JSON.stringify(ORDER));sessionStorage.setItem('tankyu_page',page);}catch(e){}
+}
+function loadProgress(){
+  try{
+    const a=sessionStorage.getItem('tankyu_answers');
+    const o=sessionStorage.getItem('tankyu_order');
+    const p=sessionStorage.getItem('tankyu_page');
+    if(a&&o){return{answers:JSON.parse(a),order:JSON.parse(o),page:parseInt(p)||0};}
+  }catch(e){}
+  return null;
+}
+function checkResume(){
+  const saved=loadProgress();
+  const banner=document.getElementById('resume-banner');
+  if(saved&&Object.keys(saved.answers).length>0){banner.style.display='block';}
+  else{banner.style.display='none';}
+}
+function resumeQuiz(){
+  const saved=loadProgress();
+  if(!saved)return;
+  answers=saved.answers;ORDER=saved.order;page=saved.page;
+  quizActive=true;
+  renderPage();show('s-quiz');
+}
+function clearSaved(){
+  try{sessionStorage.removeItem('tankyu_answers');sessionStorage.removeItem('tankyu_order');sessionStorage.removeItem('tankyu_page');}catch(e){}
+  document.getElementById('resume-banner').style.display='none';
+}
+
+// ===== BEFOREUNLOAD =====
+let quizActive=false;
+window.addEventListener('beforeunload',e=>{
+  if(quizActive&&Object.keys(answers).length>0){
+    saveProgress();
+    e.preventDefault();e.returnValue='';
+  }
+});
+
+function runDemo(type){
+  ORDER=shuffle(QUESTIONS.map((_,i)=>i));
+  answers={};
+  const profiles={
+    ps:{ sp:1, nu:2, en:3, ed:4, ar:3, ja:4, so:5, ps:5, ge:3, mk:1, ph:1, bi:2, ev:3, sd:4, te:2, lo:5 },
+    te:{ sp:1, nu:3, en:2, ed:3, ar:1, ja:1, so:2, ps:2, ge:3, mk:5, ph:5, bi:5, ev:5, sd:3, te:5, lo:2 },
+    sp:{ sp:5, nu:4, en:2, ed:3, ar:2, ja:1, so:3, ps:4, ge:2, mk:3, ph:3, bi:3, ev:2, sd:2, te:3, lo:3 }
+  };
+  const profile=profiles[type]||profiles.ps;
+  QUESTIONS.forEach((q,qi)=>{
+    const scores=q.f.map(fid=>profile[fid]||1);
+    const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+    const noise=Math.floor(Math.random()*2)-1;
+    answers[qi]=Math.min(5,Math.max(0,Math.round(avg)+noise));
+  });
+  calcResult();
+}
+
+function exportText(){
+  const top5=lastSorted.slice(0,5).map((f,i)=>`${['1位','2位','3位','4位','5位'][i]}：${f.name}（${lastFn[f.id]}点）`).join('\n');
+  const selKws=selectedKws.size>0?[...selectedKws].join('・'):
+    [...document.querySelectorAll('#kw10 .kw-pill')].map(e=>e.textContent).join('・');
+  const themes=[...document.querySelectorAll('#ai-result .theme-card')].map((c,i)=>{
+    const q=c.querySelector('.theme-q')?.textContent||'';
+    const r=c.querySelector('.theme-reason')?.textContent||'';
+    return `テーマ${i+1}：${q}\n　→ ${r}`;
+  }).join('\n');
+  const text=`【探究MBTIの結果】\n\n■ 関心が強い分野 トップ5\n${top5}\n\n■ キーワード\n${selKws}${themes?'\n\n■ 探究テーマ候補\n'+themes:''}`;
+
+  // Clipboard APIを試みる（HTTPS環境で動作）
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>{
+      showCopyMsg('✅ クリップボードにコピーしました！');
+    }).catch(()=>fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text){
+  // textarea を body に追加して select → execCommand
+  const ta=document.createElement('textarea');
+  ta.value=text;
+  ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+  document.body.appendChild(ta);
+  ta.focus();ta.select();
+  ta.setSelectionRange(0,text.length);
+  let ok=false;
+  try{ok=document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta);
+  if(ok){
+    showCopyMsg('✅ クリップボードにコピーしました！');
+  } else {
+    showTextModal(text);
+  }
+}
+
+function showCopyMsg(msg){
+  const el=document.getElementById('copy-msg');
+  el.textContent=msg||'✅ コピーしました！';
+  el.style.display='block';
+  setTimeout(()=>el.style.display='none',3000);
+}
+
+function showTextModal(text){
+  let modal=document.getElementById('text-modal');
+  if(!modal){
+    modal=document.createElement('div');
+    modal.id='text-modal';
+    modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px';
+    modal.innerHTML=`
+      <div style="background:#fff;border-radius:16px;padding:20px;width:100%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:14px;font-weight:700;color:#1a1a2e">📋 テキストをコピーしてください</div>
+        <div style="font-size:12px;color:#7a7a9a">「全選択してコピー」ボタンを押すか、Ctrl+A → Ctrl+C でコピーできます</div>
+        <textarea id="text-modal-area" style="width:100%;height:280px;border:2px solid #ede8ff;border-radius:10px;padding:12px;font-size:12px;font-family:monospace;resize:none;outline:none;color:#1a1a2e" readonly></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button onclick="selectModalText()" style="padding:10px 20px;border-radius:50px;border:2px solid #4d96ff;background:#eff6ff;color:#1e3a8a;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px">全選択してコピー</button>
+          <button onclick="document.getElementById('text-modal').style.display='none'" style="padding:10px 20px;border-radius:50px;border:2px solid #e0ddd6;background:#fff;color:#7a7a9a;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px">閉じる</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+  }
+  modal.style.display='flex';
+  const ta=document.getElementById('text-modal-area');
+  ta.value=text;
+  setTimeout(()=>{ta.focus();ta.select();ta.setSelectionRange(0,text.length);},100);
+}
+
+function selectModalText(){
+  const ta=document.getElementById('text-modal-area');
+  ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);
+  let ok=false;
+  try{ok=document.execCommand('copy');}catch(e){}
+  if(ok){document.getElementById('text-modal').style.display='none';showCopyMsg('✅ クリップボードにコピーしました！');}
+}
+
+async function exportImage(){
+  const btn=document.querySelector('.share-btn[onclick="exportImage()"]');
+  btn.textContent='📸 生成中...';btn.disabled=true;
+  try{
+    await document.fonts.ready;
+    const W=640,PAD=24,DPR=2;
+    const medals=['🥇','🥈','🥉','🏅','🎖️'];
+    const top5=lastSorted.slice(0,5);
+
+    // キーワード収集
+    const kws=[...document.querySelectorAll('#kw10 .kw-pill')].map(e=>e.textContent).slice(0,20);
+
+    // テーマ収集
+    const themes=[...document.querySelectorAll('#ai-result .theme-card')].map(c=>({
+      q:c.querySelector('.theme-q')?.textContent||'',
+      r:c.querySelector('.theme-reason')?.textContent||''
+    }));
+
+    // レーダーチャートをDataURL取得
+    const radarCanvas=document.getElementById('radar-chart');
+    const radarDataUrl=radarCanvas?radarCanvas.toDataURL('image/png'):null;
+    const radarImg=radarDataUrl?await new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.src=radarDataUrl;}):null;
+
+    // 高さ計算
+    const SECTION=32,ITEM_H=64,KW_H=Math.ceil(kws.length/4)*36+48;
+    const RADAR_H=radarImg?340:0;
+    const THEME_H=themes.length>0?themes.length*80+48:0;
+    let H=80+SECTION+top5.length*ITEM_H+24+SECTION+KW_H+24;
+    if(RADAR_H) H+=SECTION+RADAR_H+24;
+    if(THEME_H) H+=SECTION+THEME_H+24;
+    H+=60; // フッター
+
+    const canvas=document.createElement('canvas');
+    canvas.width=W*DPR;canvas.height=H*DPR;
+    const ctx=canvas.getContext('2d');
+    ctx.scale(DPR,DPR);
+
+    // 背景
+    const bgGrad=ctx.createLinearGradient(0,0,0,H);
+    bgGrad.addColorStop(0,'#fff9f0');bgGrad.addColorStop(1,'#f0efff');
+    ctx.fillStyle=bgGrad;ctx.fillRect(0,0,W,H);
+
+    let y=PAD;
+
+    // ヘッダーバナー
+    const hGrad=ctx.createLinearGradient(0,0,W,0);
+    hGrad.addColorStop(0,'#667eea');hGrad.addColorStop(1,'#f093fb');
+    ctx.fillStyle=hGrad;
+    rr(ctx,PAD,y,W-PAD*2,56,14);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 20px sans-serif';ctx.textAlign='center';
+    ctx.fillText('🎊 探究MBTI 結果',W/2,y+24);
+    ctx.font='12px sans-serif';ctx.fillStyle='rgba(255,255,255,0.85)';
+    ctx.fillText('総合的な探究の時間',W/2,y+44);
+    y+=68;
+
+    // セクション見出しヘルパー
+    const sec=(label,col='#2563eb')=>{
+      ctx.fillStyle=col;ctx.font='bold 13px sans-serif';ctx.textAlign='left';
+      ctx.fillRect(PAD,y,4,16);
+      ctx.fillText(label,PAD+10,y+13);
+      y+=SECTION;
+    };
+
+    // ── トップ5 ──
+    sec('関心が強い分野 トップ5');
+    top5.forEach((f,i)=>{
+      const ch=ITEM_H-8;
+      ctx.fillStyle=f.bg;rr(ctx,PAD,y,W-PAD*2,ch,10);ctx.fill();
+      ctx.strokeStyle=f.bc;ctx.lineWidth=1.5;rr(ctx,PAD,y,W-PAD*2,ch,10);ctx.stroke();
+      ctx.font='18px serif';ctx.textAlign='left';ctx.fillStyle=f.tc;
+      ctx.fillText(medals[i],PAD+8,y+ch/2+6);
+      ctx.font='bold 12px sans-serif';ctx.fillStyle=f.tc;
+      const name=f.name,mxW=W-PAD*2-90;
+      if(ctx.measureText(name).width<=mxW){ctx.fillText(name,PAD+36,y+ch/2+4);}
+      else{
+        const mid=Math.ceil(name.length/2);
+        ctx.font='bold 11px sans-serif';
+        ctx.fillText(name.slice(0,mid),PAD+36,y+ch/2-4);
+        ctx.fillText(name.slice(mid),PAD+36,y+ch/2+10);
+      }
+      ctx.font='bold 17px sans-serif';ctx.textAlign='right';
+      ctx.fillText(`${lastFn[f.id]}点`,W-PAD-8,y+ch/2+6);
+      y+=ITEM_H;
+    });
+    y+=16;
+
+    // ── キーワード ──
+    sec('あなたに近いキーワード');
+    const KW_COLS=4,KW_W=Math.floor((W-PAD*2-8*(KW_COLS-1))/KW_COLS);
+    const FIELD_MAP={};FIELDS.forEach(f=>f.kws.forEach(k=>{if(!FIELD_MAP[k])FIELD_MAP[k]=f;}));
+    kws.forEach((kw,i)=>{
+      const col=i%KW_COLS,row=Math.floor(i/KW_COLS);
+      const kx=PAD+col*(KW_W+8),ky=y+row*36;
+      const f=FIELD_MAP[kw]||lastSorted[0];
+      ctx.fillStyle=f.bg;rr(ctx,kx,ky,KW_W,26,13);ctx.fill();
+      ctx.strokeStyle=f.bc;ctx.lineWidth=1;rr(ctx,kx,ky,KW_W,26,13);ctx.stroke();
+      ctx.fillStyle=f.tc;ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+      // 長いテキストは省略
+      let label=kw;
+      while(ctx.measureText(label).width>KW_W-10&&label.length>2) label=label.slice(0,-1);
+      if(label!==kw) label+='…';
+      ctx.fillText(label,kx+KW_W/2,ky+17);
+    });
+    y+=Math.ceil(kws.length/KW_COLS)*36+24;
+
+    // ── レーダーチャート ──
+    if(radarImg){
+      sec('全16分野 スコア分布');
+      const rW=W-PAD*2,rH=RADAR_H-40;
+      ctx.fillStyle='#fff';rr(ctx,PAD,y,rW,rH+8,12);ctx.fill();
+      ctx.strokeStyle='#ede8ff';ctx.lineWidth=1.5;rr(ctx,PAD,y,rW,rH+8,12);ctx.stroke();
+      // 元のCanvasのアスペクト比を保ちながら描画
+      const aspect=radarCanvas.width/radarCanvas.height;
+      const dh=rH,dw=Math.min(rW-16,dh*aspect);
+      ctx.drawImage(radarImg,PAD+(rW-dw)/2,y+4,dw,dh);
+      y+=rH+8+24;
+    }
+
+    // ── テーマ候補 ──
+    if(themes.length>0){
+      sec('探究テーマ候補');
+      themes.forEach((t,i)=>{
+        const th=72;
+        ctx.fillStyle='#fff';rr(ctx,PAD,y,W-PAD*2,th,10);ctx.fill();
+        ctx.strokeStyle='#ede8ff';ctx.lineWidth=1.5;rr(ctx,PAD,y,W-PAD*2,th,10);ctx.stroke();
+        // 左帯
+        const grad=ctx.createLinearGradient(0,y,0,y+th);
+        grad.addColorStop(0,'#4d96ff');grad.addColorStop(1,'#c77dff');
+        ctx.fillStyle=grad;ctx.fillRect(PAD,y+2,3,th-4);
+        // 番号
+        ctx.fillStyle='#4d96ff';ctx.font='bold 11px sans-serif';ctx.textAlign='left';
+        ctx.fillText(`${i+1}`,PAD+10,y+16);
+        // テーマ文（折り返し）
+        ctx.fillStyle='#1a1a2e';ctx.font='bold 12px sans-serif';
+        const maxW=W-PAD*2-24;
+        let line='',tx=PAD+10,ty=y+30;
+        for(const ch of t.q){
+          if(ctx.measureText(line+ch).width>maxW){ctx.fillText(line,tx,ty);line=ch;ty+=16;if(ty>y+th-20)break;}
+          else line+=ch;
+        }
+        if(line)ctx.fillText(line,tx,ty);
+        // 理由
+        ctx.fillStyle='#7a7a9a';ctx.font='11px sans-serif';
+        let rline='',rty=ty+16;
+        for(const ch of t.r){
+          if(ctx.measureText(rline+ch).width>maxW){ctx.fillText(rline,tx,rty);rline=ch;rty+=14;if(rty>y+th+2)break;}
+          else rline+=ch;
+        }
+        if(rline&&rty<=y+th+2)ctx.fillText(rline,tx,rty);
+        y+=th+8;
+      });
+      y+=16;
+    }
+
+    // フッター
+    ctx.fillStyle='#aaa';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText('探究MBTI — 総合的な探究の時間',W/2,y+16);
+
+    // ダウンロード
+    const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));
+    if(!blob)throw new Error('画像の生成に失敗しました');
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='tankyu_mbti_result.png';
+    document.body.appendChild(a);a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }catch(e){alert('画像の生成に失敗しました: '+e.message);}
+  finally{btn.textContent='🖼️ 画像として保存';btn.disabled=false;}
+}
+
+function rr(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+function goToTop(){window.scrollTo({top:0,behavior:'smooth'});}
+
+window.addEventListener('scroll',()=>{
+  const btn=document.getElementById('top-btn');
+  if(window.scrollY>200) btn.classList.add('visible');
+  else btn.classList.remove('visible');
+});
+
+
+
+// ===== AI テーマ生成 =====
+const GAS_URL='https://script.google.com/macros/s/AKfycbw-xYaMawptnQ_nTpRwE_jifhhckxNeA4oDdIeogodRYvBbYVuZyksYcNDdUeQFK68W3A/exec';
+
+// ローカル生成（GAS・Anthropicが両方失敗したときの最終フォールバック）
+function generateLocalThemes(fields,keywords,count=6){
+  const P=['学校の廊下','商店街','地域の公園','老人ホーム','地元の駅前','給食室','地元のカフェ'];
+  const T=['地域のお年寄り','小学生','同世代の生徒','外国人観光客','地域住民','お店の人'];
+  const M=['手作りのポスター','自分でデザインしたマップ','ワークショップ','展示や作品','動画・SNS発信','手作りのグッズ'];
+  const R=['どんな反応が返ってくるか？','行動はどう変わるか？','何が起きるか？','どんな声が集まるか？'];
+  const pick=(a,i)=>a[i%a.length];
+  const sh=(a)=>[...a].sort(()=>Math.random()-0.5);
+  const sp=sh(P),st=sh(T),sm=sh(M),sr=sh(R);
+  const seeds=fields.flatMap(f=>f.kws.slice(0,3));
+  const ss=sh(seeds);
+  return Array.from({length:count},(_,i)=>({
+    theme:`${pick(ss,i)}をテーマにした${pick(sm,i)}を${pick(sp,i)}の${pick(st,i)}に届けてみたら、${pick(sr,i)}`,
+    reason:`${fields[i%fields.length].name}への関心を活かし、${pick(st,i)}への具体的な働きかけを通じて学ぶ探究。相手の反応次第で方向が変わる。`
+  }));
+}
+
+async function generateThemes(){
+  const btn=document.getElementById('btn-gen');
+  const loading=document.getElementById('ai-loading');
+  const resultDiv=document.getElementById('ai-result');
+
+  btn.disabled=true;
+  btn.textContent='生成中...';
+  loading.style.display='block';
+  resultDiv.innerHTML='';
+
+  let keywords;
+  if(selectedKws.size>0){
+    keywords=[...selectedKws].join('、');
+  } else {
+    const kwS={};
+    FIELDS.forEach(f=>f.kws.forEach(kw=>{kwS[kw]=(kwS[kw]||0)+lastFn[f.id];}));
+    keywords=Object.entries(kwS).sort((a,b)=>b[1]-a[1]).slice(0,20).map(e=>e[0]).join('、');
+  }
+  const fields=lastSorted.slice(0,5).map(f=>f.name).join('、');
+  generateThemes._count=(generateThemes._count||0)+1;
+  const genCount=generateThemes._count;
+
+  const prompt=`あなたは高校生の「総合的な探究の時間」を支援する教育AIです。
+以下は、ある高校生が「探究MBTI」という診断ツールで出た結果です。
+
+【関心が強い分野トップ5】
+${fields}
+
+【関心に近いキーワード】
+${keywords}
+
+この生徒に合った探究テーマ候補を6個、疑問文の形で提案してください。
+
+【重要】これは${genCount}回目のリクエストです。毎回必ず異なる視点・切り口・舞台設定のテーマを出してください。
+
+条件：
+- 日本の高校1〜2年生が取り組める
+- 学校・地域・日常生活を舞台に手を動かして取り組める
+- 作ったもの・企画したことが外の世界（他者・地域）に触れる場面を含む
+- やってみるまで相手の反応が読めない要素を含む
+- 文献調査やアンケートだけで完結しない
+- 自分の体や記録だけで完結しない
+
+各テーマにはなぜこの生徒に向いているか・どう外の世界に働きかけられるかを1〜2文で。
+
+[ で始まり ] で終わるJSON配列のみを返してください。説明文やコードブロック記号は不要です。
+[{"theme":"〜したら、〜はどう変わるか？","reason":"理由"}]`;
+
+  try{
+    let themes=null;
+
+    // ── GASプロキシ経由（外部ブラウザでも動作）──
+    try{
+      const res=await Promise.race([
+        fetch(GAS_URL,{
+          method:'POST',
+          headers:{'Content-Type':'text/plain'}, // GASはapplication/jsonをpreflightさせないためtext/plainを使用
+          body:JSON.stringify({messages:[{role:'user',content:prompt}]})
+        }),
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),60000))
+      ]);
+      if(res.ok){
+        const d=await res.json();
+        const t=d.content?.filter(c=>c.type==='text').map(c=>c.text).join('')||'';
+        const m=t.replace(/```json|```/gi,'').trim().match(/\[[\s\S]*?\]/);
+        if(m) themes=JSON.parse(m[0]);
+      }
+    }catch(ge){console.log('GAS failed:',ge.message);}
+
+    // ── Anthropic直接呼び出し（claude.ai上のみ）──
+    if(!themes&&IS_CLAUDE_AI){
+      try{
+        const res=await Promise.race([
+          fetch('https://api.anthropic.com/v1/messages',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+            body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:2000,temperature:1,messages:[{role:'user',content:prompt}]})
+          }),
+          new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),55000))
+        ]);
+        if(res.ok){
+          const d=await res.json();
+          const t=d.content.filter(c=>c.type==='text').map(c=>c.text).join('');
+          const m=t.replace(/```json|```/gi,'').trim().match(/\[[\s\S]*?\]/);
+          if(m) themes=JSON.parse(m[0]);
+        }
+      }catch(ae){console.log('Anthropic failed:',ae.message);}
+    }
+
+    // ── ローカル生成（最終フォールバック）──
+    if(!themes||!themes.length){
+      await new Promise(r=>setTimeout(r,400));
+      themes=generateLocalThemes(lastSorted.slice(0,5),
+        selectedKws.size>0?[...selectedKws]:keywords.split('、'),6);
+    }
+
+    if(!themes||!themes.length) throw new Error('テーマの生成に失敗しました。');
+
+    resultDiv.innerHTML='';
+    favThemes=new Set();
+    document.getElementById('btn-fav-export').style.display='none';
+    themes.forEach((t,i)=>{
+      const card=document.createElement('div');
+      card.className='theme-card';
+      const favBtn=document.createElement('button');
+      favBtn.className='theme-fav';favBtn.textContent='☆';favBtn.title='お気に入りに追加';
+      favBtn.onclick=()=>toggleFav(i,favBtn);
+      card.innerHTML=`<div class="theme-num">${i+1}</div><div class="theme-q">${t.theme||''}</div><div class="theme-reason">${t.reason||''}</div>`;
+      card.appendChild(favBtn);
+      resultDiv.appendChild(card);
+    });
+  }catch(e){
+    resultDiv.innerHTML=`<div class="tip-box" style="color:#b91c1c">⚠️ ${e.message}</div>`;
+  }finally{
+    loading.style.display='none';
+    btn.disabled=false;
+    btn.textContent='もう一度生成する';
+  }
+}
+// claude.ai上かどうか判定（Anthropicフォールバック用）
+const IS_CLAUDE_AI=location.hostname.includes('claude.ai')||location.hostname.includes('anthropic.com');
+
+// 初期化
+checkResume();
+</script>
+</body>
+</html>
