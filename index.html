@@ -1208,14 +1208,13 @@ ${filterNote}
     let themes=null;
     let usedGAS=false;
 
-    // ── GASプロキシ経由（Gemini）──
+    // ── GASプロキシ経由（Gemini）GET方式でCORSを回避 ──
     try{
+      // GETパラメータでプロンプトを送る（preflightなしでCORS回避）
+      const encoded=encodeURIComponent(JSON.stringify({prompt:prompt}));
+      const gasUrl=GAS_URL+'?data='+encoded;
       const res=await Promise.race([
-        fetch(GAS_URL,{
-          method:'POST',
-          headers:{'Content-Type':'text/plain'},
-          body:JSON.stringify({prompt:prompt})
-        }),
+        fetch(gasUrl,{method:'GET'}),
         new Promise((_,rej)=>setTimeout(()=>rej(new Error('GAS timeout')),60000))
       ]);
       if(res.ok){
