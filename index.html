@@ -1141,30 +1141,44 @@ async function generateThemes(){
   loading.style.display='block';
   resultDiv.innerHTML='';
 
-  let keywords;
+  // キーワード収集（選択中 or スコア上位）
+  let kwArray;
   if(selectedKws.size>0){
-    keywords=[...selectedKws].join('、');
+    kwArray=[...selectedKws];
   } else {
     const kwS={};
     FIELDS.forEach(f=>f.kws.forEach(kw=>{kwS[kw]=(kwS[kw]||0)+lastFn[f.id];}));
-    keywords=Object.entries(kwS).sort((a,b)=>b[1]-a[1]).slice(0,20).map(e=>e[0]).join('、');
+    kwArray=Object.entries(kwS).sort((a,b)=>b[1]-a[1]).slice(0,20).map(e=>e[0]);
   }
-  const fields=lastSorted.slice(0,5).map(f=>f.name).join('、');
+  const keywords=kwArray.join('、');
+
+  // フィルター中の分野があればそれを優先
+  const targetFields=activeFilterId
+    ? [FIELDS.find(f=>f.id===activeFilterId),...lastSorted.slice(0,4)].filter(Boolean)
+    : lastSorted.slice(0,5);
+  const fieldNames=targetFields.map(f=>f.name).join('、');
+  const filterNote=activeFilterId
+    ? `※特に「${FIELDS.find(f=>f.id===activeFilterId)?.name}」に関連したテーマを優先してください。`
+    : '';
+
   generateThemes._count=(generateThemes._count||0)+1;
   const genCount=generateThemes._count;
+  const seed=Math.floor(Math.random()*100000);
 
   const prompt=`あなたは高校生の「総合的な探究の時間」を支援する教育AIです。
 以下は、ある高校生が「探究MBTI」という診断ツールで出た結果です。
 
 【関心が強い分野トップ5】
-${fields}
+${fieldNames}
 
 【関心に近いキーワード】
 ${keywords}
 
+${filterNote}
+
 この生徒に合った探究テーマ候補を6個、疑問文の形で提案してください。
 
-【重要】これは${genCount}回目のリクエストです。毎回必ず異なる視点・切り口・舞台設定のテーマを出してください。
+【重要】乱数シード:${seed}。これは${genCount}回目のリクエストです。前回と完全に異なる舞台・対象・手段・視点のテーマを出してください。同じテーマや似た表現の繰り返しは厳禁です。
 
 条件：
 - 日本の高校1〜2年生が取り組める
@@ -1176,31 +1190,42 @@ ${keywords}
 
 各テーマにはなぜこの生徒に向いているか・どう外の世界に働きかけられるかを1〜2文で。
 
-[ で始まり ] で終わるJSON配列のみを返してください。説明文やコードブロック記号は不要です。
+[ で始まり ] で終わるJSON配列のみを返してください。説明文やコードブロック記号は一切不要です。
 [{"theme":"〜したら、〜はどう変わるか？","reason":"理由"}]`;
 
   try{
     let themes=null;
+    let usedGAS=false;
 
-    // ── GASプロキシ経由（外部ブラウザでも動作）──
+    // ── GASプロキシ経由（Gemini）──
     try{
       const res=await Promise.race([
         fetch(GAS_URL,{
           method:'POST',
-          headers:{'Content-Type':'text/plain'}, // GASはapplication/jsonをpreflightさせないためtext/plainを使用
-          body:JSON.stringify({messages:[{role:'user',content:prompt}]})
+          headers:{'Content-Type':'text/plain'},
+          body:JSON.stringify({prompt:prompt})
         }),
-        new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),60000))
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error('GAS timeout')),60000))
       ]);
       if(res.ok){
         const d=await res.json();
-        const t=d.content?.filter(c=>c.type==='text').map(c=>c.text).join('')||'';
-        const m=t.replace(/```json|```/gi,'').trim().match(/\[[\s\S]*?\]/);
-        if(m) themes=JSON.parse(m[0]);
+        if(d.error) throw new Error('GAS error: '+d.error);
+        const rawText=d.text||'';
+        const cleaned=rawText.replace(/```json|```/gi,'').trim();
+        const m=cleaned.match(/\[[\s\S]*\]/);
+        if(m){
+          themes=JSON.parse(m[0]);
+          usedGAS=true;
+        }
+      } else {
+        throw new Error('GAS HTTP '+res.status);
       }
-    }catch(ge){console.log('GAS failed:',ge.message);}
+    }catch(ge){
+      console.warn('GAS failed:',ge.message);
+      resultDiv.innerHTML=`<div class="tip-box" style="color:#b45309;margin-bottom:8px">⚠️ AI接続中にエラーが発生しました（${ge.message}）。ローカル生成に切り替えます。</div>`;
+    }
 
-    // ── Anthropic直接呼び出し（claude.ai上のみ）──
+    // ── Anthropic直接（claude.ai上のみ）──
     if(!themes&&IS_CLAUDE_AI){
       try{
         const res=await Promise.race([
@@ -1214,17 +1239,15 @@ ${keywords}
         if(res.ok){
           const d=await res.json();
           const t=d.content.filter(c=>c.type==='text').map(c=>c.text).join('');
-          const m=t.replace(/```json|```/gi,'').trim().match(/\[[\s\S]*?\]/);
+          const m=t.replace(/```json|```/gi,'').trim().match(/\[[\s\S]*\]/);
           if(m) themes=JSON.parse(m[0]);
         }
-      }catch(ae){console.log('Anthropic failed:',ae.message);}
+      }catch(ae){console.warn('Anthropic failed:',ae.message);}
     }
 
     // ── ローカル生成（最終フォールバック）──
     if(!themes||!themes.length){
-      await new Promise(r=>setTimeout(r,400));
-      themes=generateLocalThemes(lastSorted.slice(0,5),
-        selectedKws.size>0?[...selectedKws]:keywords.split('、'),6);
+      themes=generateLocalThemes(targetFields,kwArray,6);
     }
 
     if(!themes||!themes.length) throw new Error('テーマの生成に失敗しました。');
@@ -1232,6 +1255,13 @@ ${keywords}
     resultDiv.innerHTML='';
     favThemes=new Set();
     document.getElementById('btn-fav-export').style.display='none';
+
+    // 使用したエンジンを表示
+    const engineNote=document.createElement('div');
+    engineNote.style.cssText='font-size:11px;color:var(--muted);margin-bottom:8px;text-align:right';
+    engineNote.textContent=usedGAS?'✨ AI生成（Claude）':IS_CLAUDE_AI?'✨ AI生成（Claude直接）':'📝 候補生成（ローカル）';
+    resultDiv.appendChild(engineNote);
+
     themes.forEach((t,i)=>{
       const card=document.createElement('div');
       card.className='theme-card';
