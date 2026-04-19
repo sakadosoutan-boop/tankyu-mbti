@@ -1311,7 +1311,20 @@ ${filterNote}
 
     // ── GASプロキシ経由（Gemini）GET方式でCORSを回避 ──
     try{
-      const encoded=encodeURIComponent(JSON.stringify({prompt:prompt}));
+      // プロンプトを最小限に短縮（GETパラメータの上限対策）
+      const kwShort=kwArray.slice(0,5).join('・');
+      const fieldShort=targetFields.slice(0,3).map(f=>f.name).join('・');
+      const shortPrompt=`高校生の探究テーマを6個提案してください。
+分野：${fieldShort}
+キーワード：${kwShort}
+${activeFilterId?'特に「'+FIELDS.find(f=>f.id===activeFilterId)?.name+'」関連で。':''}
+条件：高校生が学校・地域で手を動かせる・実在の他者に届く・相手の反応が読めない・調査だけで終わらない
+例：「地元商店街のシャッターにアートを描いたら通行人の足は止まるか？」
+禁止：調査・分析・意識調査で終わるもの・抽象的すぎるもの
+シード:${seed}
+[{"theme":"疑問文","reason":"理由1文"}]`;
+
+      const encoded=encodeURIComponent(JSON.stringify({prompt:shortPrompt}));
       const gasUrl=GAS_URL+'?data='+encoded;
       let gasOk=false;
       for(let attempt=1;attempt<=2;attempt++){
